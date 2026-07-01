@@ -26,17 +26,19 @@ img { max-width: 100%; }
 <body><h1 id="setup-guide-c10-ifb-core-cluster">Setup guide — C10 (IFB Core cluster)</h1>
 <blockquote>
 <h2 id="fast-path">⚡ Fast path</h2>
-<p>Once you can log in to the cluster (§1), get the materials with <strong>git</strong> and run the setup
-script (on the <strong>login node</strong>):
+<p>First <strong>fork</strong> this repo on GitHub into your own account (§1b). Then, once you can log in to the
+cluster (§1), clone <strong>your fork over HTTPS</strong> — the repo is public, so cloning needs <strong>no SSH key
+and no token</strong> — and run the setup script (on the <strong>login node</strong>):
 <code>bash
-git clone git@github.com:arl94/gbm-space-c10.git ~/gbm-space-c10   # ← your instructor gives this URL
+git clone https://github.com/&lt;your-github-username&gt;/gbm-space-c10.git ~/gbm-space-c10
 cd ~/gbm-space-c10
+git remote add upstream https://github.com/arl94/gbm-space-c10.git   # instructor's repo, for updates
 bash setup.sh</code>
 <code>setup.sh</code> enables conda, verifies the <code>single_cell</code> environment, and registers the Jupyter
 kernel. Then open a <strong>new terminal</strong> and jump to §3 (VS Code). The sections below explain each
 step manually. <strong>Setup only — run heavy compute via Slurm (§5), not the login node.</strong></p>
-<p><strong>Getting updates later:</strong> <code>git -C ~/gbm-space-c10 pull</code>. Keep your own work in <em>separate</em>
-files (e.g. copy <code>01_..._student.ipynb</code> → <code>01_..._myname.ipynb</code>) so pulls don't clash.</p>
+<p><strong>Get instructor updates later:</strong> <code>git pull upstream master</code>. Do your analysis in a <em>copy</em> of the
+student notebook (e.g. <code>01_..._student.ipynb</code> → <code>01_..._myname.ipynb</code>) so updates never clash with your edits.</p>
 </blockquote>
 <p>Everything for this project runs on the <strong>IFB Core cluster</strong>. You will:
 1. connect to the cluster,
@@ -88,24 +90,49 @@ files (e.g. copy <code>01_..._student.ipynb</code> → <code>01_..._myname.ipynb
 <p>You land on a <strong>login node</strong>. The login node is for editing, small commands, and submitting
 jobs — <strong>not</strong> for heavy computation (see §5).</p>
 <hr />
-<h2 id="1b-get-the-materials-with-git">1b. Get the materials with git</h2>
-<p>The project lives in a GitHub repository your instructor will share with you. On the <strong>login
-node</strong>, clone it into your home directory:</p>
-<pre><code class="language-bash">git clone git@github.com:arl94/gbm-space-c10.git ~/gbm-space-c10
+<h2 id="1b-get-the-materials-with-git-fork-upstream">1b. Get the materials with git (fork + upstream)</h2>
+<p>You'll keep your <strong>own copy</strong> of the repo on GitHub — a <em>fork</em> — so you can freely edit and
+complete the student notebooks, while still pulling in any updates the instructor makes to the
+originals. (A fork is the right model here: you get your own writable copy without needing push
+access to the instructor's repo, and everyone's work stays isolated.)</p>
+<p><strong>Step 1 — fork (once, in your browser).</strong> Sign in to GitHub, go to
+<a href="https://github.com/arl94/gbm-space-c10">https://github.com/arl94/gbm-space-c10</a>, and click <strong>Fork</strong> (top-right) → <em>Create fork</em>. You now
+own <code>https://github.com/&lt;your-github-username&gt;/gbm-space-c10</code>.</p>
+<p><strong>Step 2 — clone YOUR fork onto the cluster over HTTPS</strong> (login node). The repo is <strong>public</strong>, so
+cloning needs <strong>no SSH key and no token</strong> — just use the <code>https://</code> URL:</p>
+<pre><code class="language-bash">git clone https://github.com/&lt;your-github-username&gt;/gbm-space-c10.git ~/gbm-space-c10
 cd ~/gbm-space-c10
 </code></pre>
+<blockquote>
+<p>⚠️ Don't use the <code>git@github.com:…</code> (SSH) URL for cloning — without an SSH key that fails with
+<em>"Permission denied (publickey) … could not read from remote repository."</em> HTTPS avoids this.</p>
+</blockquote>
+<p><strong>Step 3 — link the instructor's repo as <code>upstream</code></strong> (this is how you receive updates):</p>
+<pre><code class="language-bash">git remote add upstream https://github.com/arl94/gbm-space-c10.git
+git remote -v      # 'origin' = your fork (you push here); 'upstream' = instructor (you pull from here)
+</code></pre>
+<p><strong>Get instructor updates anytime</strong> — safe to run whenever notebooks change (public repo, no auth):</p>
+<pre><code class="language-bash">git pull upstream master
+</code></pre>
+<p>To keep those pulls <strong>conflict-free</strong>, do your analysis in a <em>copy</em> of the student notebook so you
+never edit the tracked file the instructor might also update:</p>
+<pre><code class="language-bash">cp notebooks/level1/01_snrna_analysis_student.ipynb notebooks/level1/01_myname.ipynb
+</code></pre>
+<p><strong>Saving your own progress back to your fork (optional).</strong> Cloning/pulling a public repo needs no
+credentials, but <strong>pushing does</strong>. So set up auth only when you first want to push:</p>
+<pre><code class="language-bash">git add notebooks/level1/01_myname.ipynb
+git commit -m &quot;my level 1 progress&quot;
+git push origin master        # asks for GitHub username + a Personal Access Token (not your password)
+</code></pre>
 <ul>
-<li><strong>Access:</strong> the repo may be private — your instructor adds you as a collaborator. To clone a
-  private repo you must authenticate to GitHub, either with an <strong>SSH key</strong> (generate one on the
-  cluster with <code>ssh-keygen -t ed25519</code>, then add <code>~/.ssh/id_ed25519.pub</code> to GitHub → Settings →
-  SSH keys, and use the <code>git@github.com:…</code> URL) or a <strong>personal access token</strong> over HTTPS
-  (<code>https://github.com/arl94/gbm-space-c10.git</code>).</li>
-<li><strong>Updates:</strong> get the latest materials anytime with <code>git -C ~/gbm-space-c10 pull</code>.</li>
-<li><strong>Keep your work separate:</strong> do your analysis in <em>copies</em> (e.g. <code>cp
-  notebooks/level1/01_snrna_analysis_student.ipynb notebooks/level1/01_myname.ipynb</code>) so a
-  <code>git pull</code> never conflicts with your edits. The big data files are <strong>not</strong> in the repo — they
-  stay on the shared filesystem (paths are given in the notebooks / <code>README.md</code>).</li>
+<li><strong>Easiest:</strong> create a <strong>Personal Access Token</strong> (GitHub → Settings → Developer settings → Tokens)
+  and paste it when <code>git push</code> prompts for a password.</li>
+<li><strong>Or SSH:</strong> <code>ssh-keygen -t ed25519</code> on the cluster, add <code>~/.ssh/id_ed25519.pub</code> to GitHub →
+  <em>Settings → SSH and GPG keys</em>, then switch your push URL with
+  <code>git remote set-url origin git@github.com:&lt;your-github-username&gt;/gbm-space-c10.git</code>.</li>
 </ul>
+<p>The big data <strong>and the precomputed model files are not in the repo</strong> — they stay on the shared
+filesystem (paths are in the notebooks / <code>README.md</code> / <code>precomputed/README.md</code>).</p>
 <hr />
 <h2 id="2-the-conda-environment">2. The conda environment</h2>
 <p>A ready-made environment called <strong><code>single_cell</code></strong> already exists on the cluster with the full

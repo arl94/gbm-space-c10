@@ -2,11 +2,12 @@
 
 > ## ⚡ Fast path
 > First **fork** this repo on GitHub into your own account (§1b). Then, once you can log in to the
-> cluster (§1), clone **your fork** and run the setup script (on the **login node**):
+> cluster (§1), clone **your fork over HTTPS** — the repo is public, so cloning needs **no SSH key
+> and no token** — and run the setup script (on the **login node**):
 > ```bash
-> git clone git@github.com:<your-github-username>/gbm-space-c10.git ~/gbm-space-c10
+> git clone https://github.com/<your-github-username>/gbm-space-c10.git ~/gbm-space-c10
 > cd ~/gbm-space-c10
-> git remote add upstream git@github.com:arl94/gbm-space-c10.git   # instructor's repo, for updates
+> git remote add upstream https://github.com/arl94/gbm-space-c10.git   # instructor's repo, for updates
 > bash setup.sh
 > ```
 > `setup.sh` enables conda, verifies the `single_cell` environment, and registers the Jupyter
@@ -61,19 +62,22 @@ access to the instructor's repo, and everyone's work stays isolated.)
 <https://github.com/arl94/gbm-space-c10>, and click **Fork** (top-right) → *Create fork*. You now
 own `https://github.com/<your-github-username>/gbm-space-c10`.
 
-**Step 2 — clone YOUR fork onto the cluster** (login node):
+**Step 2 — clone YOUR fork onto the cluster over HTTPS** (login node). The repo is **public**, so
+cloning needs **no SSH key and no token** — just use the `https://` URL:
 ```bash
-git clone git@github.com:<your-github-username>/gbm-space-c10.git ~/gbm-space-c10
+git clone https://github.com/<your-github-username>/gbm-space-c10.git ~/gbm-space-c10
 cd ~/gbm-space-c10
 ```
+> ⚠️ Don't use the `git@github.com:…` (SSH) URL for cloning — without an SSH key that fails with
+> *"Permission denied (publickey) … could not read from remote repository."* HTTPS avoids this.
 
 **Step 3 — link the instructor's repo as `upstream`** (this is how you receive updates):
 ```bash
-git remote add upstream git@github.com:arl94/gbm-space-c10.git
+git remote add upstream https://github.com/arl94/gbm-space-c10.git
 git remote -v      # 'origin' = your fork (you push here); 'upstream' = instructor (you pull from here)
 ```
 
-**Get instructor updates anytime** — safe to run whenever notebooks change:
+**Get instructor updates anytime** — safe to run whenever notebooks change (public repo, no auth):
 ```bash
 git pull upstream master
 ```
@@ -82,17 +86,19 @@ never edit the tracked file the instructor might also update:
 ```bash
 cp notebooks/level1/01_snrna_analysis_student.ipynb notebooks/level1/01_myname.ipynb
 ```
-Save your own progress to **your fork** whenever you like:
+
+**Saving your own progress back to your fork (optional).** Cloning/pulling a public repo needs no
+credentials, but **pushing does**. So set up auth only when you first want to push:
 ```bash
 git add notebooks/level1/01_myname.ipynb
 git commit -m "my level 1 progress"
-git push origin master
+git push origin master        # asks for GitHub username + a Personal Access Token (not your password)
 ```
-
-**GitHub authentication on the cluster:** to clone/push over SSH, generate a key on the cluster
-(`ssh-keygen -t ed25519`, press Enter through the prompts) and add the contents of
-`~/.ssh/id_ed25519.pub` to GitHub → *Settings → SSH and GPG keys*. (HTTPS with a personal access
-token also works, using your fork's `https://github.com/<your-github-username>/gbm-space-c10.git` URL.)
+- **Easiest:** create a **Personal Access Token** (GitHub → Settings → Developer settings → Tokens)
+  and paste it when `git push` prompts for a password.
+- **Or SSH:** `ssh-keygen -t ed25519` on the cluster, add `~/.ssh/id_ed25519.pub` to GitHub →
+  *Settings → SSH and GPG keys*, then switch your push URL with
+  `git remote set-url origin git@github.com:<your-github-username>/gbm-space-c10.git`.
 
 The big data **and the precomputed model files are not in the repo** — they stay on the shared
 filesystem (paths are in the notebooks / `README.md` / `precomputed/README.md`).

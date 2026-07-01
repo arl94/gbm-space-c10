@@ -2,7 +2,7 @@
 # =============================================================================
 # C10 — student setup (run AFTER you have cloned this repo on the IFB cluster)
 #
-#   git clone git@github.com:arl94/gbm-space-c10.git ~/gbm-space-c10
+#   git clone https://github.com/<your-username>/gbm-space-c10.git ~/gbm-space-c10   # public repo: HTTPS, no key needed
 #   cd ~/gbm-space-c10
 #   bash setup.sh
 #
