@@ -53,6 +53,10 @@ for cell in nb.cells:
         prev_md_text = text
     else:
         summary = extract_task_summary(prev_md_text)
+        if "# [KEEP-IN-STUDENT]" in cell.source:
+            # GPU-step cells students SKIP: keep the load-or-train code verbatim.
+            new_cells.append(nbf.v4.new_code_cell(cell.source))
+            continue
         if "tiny_snrna_1500.h5ad" in cell.source or "DATA =" in cell.source:
             # The data-loading cell: give the real path as a starting point (an
             # administrative detail, not a learning objective) -- the real course path,

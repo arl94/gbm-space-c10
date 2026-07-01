@@ -10,3 +10,7 @@ notebooks/level3/04_xenium_segmentation_basis_solution.ipynb
 # large data lives outside the repo on the shared filesystem
 *.h5ad
 
+
+# GPU-step outputs: too large for git (2 files >100MB). Fetch via rsync -- see precomputed/README.md
+precomputed/*
+!precomputed/README.md

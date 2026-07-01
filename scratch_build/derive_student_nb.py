@@ -35,6 +35,10 @@ for cell in nb.cells:
         if m:
             last_task_text = m.group(1).strip().rstrip(".")
         out_cells.append(nbf.v4.new_markdown_cell(strip_instructor(cell.source)))
+    elif "# [KEEP-IN-STUDENT]" in cell.source:
+        # GPU-step cells (scVI / cell2location) are steps students SKIP -- they load a
+        # precomputed output instead of training. Keep the load-or-train code verbatim.
+        out_cells.append(nbf.v4.new_code_cell(cell.source))
     else:
         placeholder = f"# Your code for: {last_task_text}\n"
         out_cells.append(nbf.v4.new_code_cell(placeholder))

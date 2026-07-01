@@ -255,25 +255,47 @@ print(f"Harmony done in {time.time()-t0:.1f}s -> X_pca_harmony {adata.obsm['X_pc
 
 md(r"""🔬 **TASK 4.3 — scVI.** scVI is a deep generative model trained on raw counts. On CPU it is far slower than Harmony, so **probe per-epoch cost first**, compare against scvi-tools' own epoch heuristic, and cap `max_epochs` so this stays a teaching-friendly runtime (target: well under an hour on CPU).""")
 
-code(r"""import scvi, torch
-torch.set_num_threads(8)
-scvi.settings.seed = 0
-
-scvi_ad = adata.copy()
-scvi.model.SCVI.setup_anndata(scvi_ad, layer="counts", batch_key="donor_id")
-print(f"scVI reference set up on {scvi_ad.n_obs:,} cells")""")
+code(r"""# [KEEP-IN-STUDENT]
+# scVI integration is a GPU step. It was trained for you (100 epochs) and the 30-dim latent
+# was saved -- load it here to skip training. Set TRAIN_SCVI = True to train it yourself (needs a GPU).
+import os
+TRAIN_SCVI = False
+SCVI_LATENT_FILE = "/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/gbm_space_proj/precomputed/level1_scvi_latent.npz"
+""")
 
 md(r"""💡 **HINT — runtime caveat.** scVI training cost scales with dataset size and is genuinely slow on CPU for tens of thousands of cells — avoid scvi-tools' automatic epoch heuristic (`get_max_epochs_heuristic`) for a teaching session; in this environment it picked an epoch count that made the full run take well over an hour with no early feedback, which is the wrong trade for a live class. Use a small, **fixed** epoch count instead — you always know your runtime budget up front. Raise it if you have time or GPU access.""")
 
-code(r"""SCVI_MAX_EPOCHS = 100   # fixed & directly timed deliberately -- NOT an adaptive heuristic (see HINT above).
-# GPU probe on the real 117,200-cell x 33,923-gene data: 19.2s/epoch -> 100 epochs ~= 32 min.
-t0 = time.time()
-model = scvi.model.SCVI(scvi_ad, n_latent=30)
-model.train(max_epochs=SCVI_MAX_EPOCHS, early_stopping=False)
-print(f"scVI trained ({SCVI_MAX_EPOCHS} epochs) in {(time.time()-t0)/60:.1f} min")
-
-adata.obsm["X_scvi"] = model.get_latent_representation()
-print("X_scvi shape:", adata.obsm["X_scvi"].shape)""")
+code(r"""# [KEEP-IN-STUDENT]
+SCVI_MAX_EPOCHS = 100   # only used if TRAIN_SCVI = True
+if not TRAIN_SCVI:
+    if not os.path.exists(SCVI_LATENT_FILE):
+        raise FileNotFoundError(
+            f"Precomputed scVI latent not found:\n  {SCVI_LATENT_FILE}\n"
+            "On a new server you must repoint this path (see CLAUDE.md), or set TRAIN_SCVI = True "
+            "if a GPU is available.")
+    _d = np.load(SCVI_LATENT_FILE, allow_pickle=True)
+    _lat = pd.DataFrame(_d["latent"], index=_d["obs_names"].astype(str))
+    _missing = adata.obs_names.difference(_lat.index)
+    if len(_missing):
+        raise ValueError(
+            f"{len(_missing)} of your cells are not in the precomputed scVI latent -- your QC/"
+            "filtering differs from the reference run. Re-check the QC steps above (the precomputed "
+            "latent covers the reference 117,200-cell set), or set TRAIN_SCVI = True to train yourself.")
+    adata.obsm["X_scvi"] = _lat.reindex(adata.obs_names).values.astype("float32")
+    print(f"Loaded precomputed scVI latent {adata.obsm['X_scvi'].shape} (skipped GPU training).")
+else:
+    import scvi, torch
+    torch.set_num_threads(8)
+    scvi.settings.seed = 0
+    scvi_ad = adata.copy()
+    scvi.model.SCVI.setup_anndata(scvi_ad, layer="counts", batch_key="donor_id")
+    t0 = time.time()
+    model = scvi.model.SCVI(scvi_ad, n_latent=30)
+    model.train(max_epochs=SCVI_MAX_EPOCHS, early_stopping=False)
+    adata.obsm["X_scvi"] = model.get_latent_representation()
+    print(f"scVI trained ({SCVI_MAX_EPOCHS} epochs) in {(time.time()-t0)/60:.1f} min")
+print("X_scvi shape:", adata.obsm["X_scvi"].shape)
+""")
 
 md(r"""🔬 **TASK 4.4 — compare integrations.** Build a neighbor graph + UMAP for each embedding and inspect donor mixing visually. Then quantify mixing with a simple **neighbor-purity** proxy: for each nucleus, the fraction of its k nearest neighbors from the *same* donor. Under perfect mixing this approaches each donor's global fraction; under no correction it approaches 1.0.""")
 

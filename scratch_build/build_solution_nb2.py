@@ -243,21 +243,24 @@ md(r"""💡 **HINT — runtime.** cell2location is two models: a reference **sig
 🔬 **TASK 5.2:** Set the compute mode, filter genes, and train the reference signature model.
 
 💡 **HINT:** cell2location's reference model assumes a negative-binomial (GammaPoisson) likelihood over **raw integer counts** — but by this point your Level 1 reference's `.X` is log-normalized (from Level 1 Section 3). Point `setup_anndata` at the raw-counts layer explicitly (`layer="counts"`), or training will crash with a cryptic "value... not within the support of GammaPoisson" error the first time it tries to evaluate a likelihood on fractional log-values.""")
-code(r"""import os
-C2L_MODE = "FULL"   # "DEMO" (tiny, seconds-minutes; for fast iteration) / "FAST" (CPU, ~25 min) / "FULL" (GPU, paper-exact)
+code(r"""# [KEEP-IN-STUDENT]
+import os
+C2L_MODE = "FULL"   # "DEMO" / "FAST" (CPU-runnable) / "FULL" (paper-exact; needs a GPU to train)
 REF_EPOCHS = {"DEMO": 5, "FAST": 20, "FULL": 400}[C2L_MODE]
 MAP_EPOCHS = {"DEMO": 20, "FAST": 300, "FULL": 6000}[C2L_MODE]
 print(f"Mode={C2L_MODE}: reference {REF_EPOCHS} epochs, mapping {MAP_EPOCHS} epochs")
 
-# Checkpoint dir for the expensive trained-model stages below (reference signature: ~1h;
-# each spatial mapping: ~2-4h at FULL). If a later, unrelated cell fails (e.g. a typo three
-# cells later), re-running this notebook from scratch would otherwise repeat hours of already-
-# correct training. Checkpoint files are keyed by C2L_MODE so a DEMO/FAST run's cache is never
-# mistaken for a FULL run's.
-CKPT_DIR = "/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/gbm_space_proj/scratch_build/checkpoints"
-os.makedirs(CKPT_DIR, exist_ok=True)""")
+# cell2location training (reference signature + per-section spatial mapping) is the GPU step.
+# It was run for you at FULL and the outputs saved in precomputed/; the cells below LOAD those and
+# skip training. To train it yourself, set TRAIN_C2L = True (FULL needs a GPU; FAST runs on CPU).
+TRAIN_C2L = False
+PRECOMP_DIR = "/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/gbm_space_proj/precomputed"
+CKPT_DIR = "/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/gbm_space_proj/scratch_build/checkpoints"   # instructor training cache (fallback)
+os.makedirs(CKPT_DIR, exist_ok=True)
+""")
 
-code(r"""from cell2location.utils.filtering import filter_genes
+code(r"""# [KEEP-IN-STUDENT]
+from cell2location.utils.filtering import filter_genes
 from cell2location.models import RegressionModel, Cell2location
 
 shared = sorted(set(adata_ref.var_names) & set(adata.var_names))
@@ -269,10 +272,17 @@ ref = ref[:, selected].copy()
 vis = vis[:, [g for g in selected if g in vis.var_names]].copy()
 print(f"Genes after filtering: {ref.n_vars}")
 
+REF_SIG = f"{PRECOMP_DIR}/level2_c2l_ref_signatures.parquet"
 REF_CKPT = f"{CKPT_DIR}/inf_aver_{C2L_MODE}.parquet"
-if os.path.exists(REF_CKPT):
-    inf_aver = pd.read_parquet(REF_CKPT)
-    print(f"Loaded cached reference signature from {REF_CKPT} (skipped {REF_EPOCHS}-epoch training)")
+_ref_src = next((p for p in (REF_SIG, REF_CKPT) if os.path.exists(p)), None)
+if not TRAIN_C2L:
+    if _ref_src is None:
+        raise FileNotFoundError(
+            f"Precomputed cell2location reference signature not found (looked in {REF_SIG} and "
+            f"{REF_CKPT}). Repoint paths for this server (see CLAUDE.md), or set TRAIN_C2L = True "
+            "if a GPU is available.")
+    inf_aver = pd.read_parquet(_ref_src)
+    print(f"Loaded precomputed reference signature from {_ref_src} (skipped {REF_EPOCHS}-epoch GPU training)")
 else:
     RegressionModel.setup_anndata(ref, layer="counts", batch_key="donor_id", labels_key="cell_state_for_c2l")
     ref_model = RegressionModel(ref)
@@ -281,16 +291,24 @@ else:
     inf_aver = ref.varm["q05_per_cluster_mu_fg"]
     inf_aver.to_parquet(REF_CKPT)
     print(f"Saved reference signature checkpoint -> {REF_CKPT}")
-print(f"Reference signature: {inf_aver.shape} (genes x cell types)")""")
+print(f"Reference signature: {inf_aver.shape} (genes x cell types)")
+""")
 
 md(r"""🔬 **TASK 5.3:** Train the spatial mapping model and export cell-type abundance per spot.""")
-code(r"""vis = vis[:, [g for g in inf_aver.index if g in vis.var_names]].copy()
+code(r"""# [KEEP-IN-STUDENT]
+vis = vis[:, [g for g in inf_aver.index if g in vis.var_names]].copy()
 inf_aver_aligned = inf_aver.loc[vis.var_names]
 
+MAP_FILE = f"{PRECOMP_DIR}/level2_c2l_AT10_mapped.h5ad"
 MAP_CKPT = f"{CKPT_DIR}/vis_AT10_{C2L_MODE}.h5ad"
-if os.path.exists(MAP_CKPT):
-    vis = sc.read_h5ad(MAP_CKPT)
-    print(f"Loaded cached AT10 mapping result from {MAP_CKPT} (skipped {MAP_EPOCHS}-epoch training)")
+_map_src = next((p for p in (MAP_FILE, MAP_CKPT) if os.path.exists(p)), None)
+if not TRAIN_C2L:
+    if _map_src is None:
+        raise FileNotFoundError(
+            f"Precomputed AT10 mapping not found (looked in {MAP_FILE} and {MAP_CKPT}). Repoint paths "
+            "for this server (see CLAUDE.md), or set TRAIN_C2L = True if a GPU is available.")
+    vis = sc.read_h5ad(_map_src)
+    print(f"Loaded precomputed AT10 mapping from {_map_src} (skipped {MAP_EPOCHS}-epoch GPU training)")
 else:
     Cell2location.setup_anndata(vis, layer="counts", batch_key="sample_name" if "sample_name" in vis.obs else None)
     sp_model = Cell2location(vis, cell_state_df=inf_aver_aligned, N_cells_per_location=30, detection_alpha=200)
@@ -303,7 +321,8 @@ else:
 abundance = vis.obsm["q05_cell_abundance_w_sf"] if "q05_cell_abundance_w_sf" in vis.obsm else \
             vis.obs[[c for c in vis.obs.columns if c.startswith("q05")]]
 print(f"Cell-type abundance per spot: {abundance.shape}")
-print(abundance.describe().T[["mean", "std", "max"]].round(2))""")
+print(abundance.describe().T[["mean", "std", "max"]].round(2))
+""")
 
 md(r"""🔬 **TASK 5.4:** Plot a few cell-type abundance maps on tissue.""")
 code(r"""top_types = abundance.mean().nlargest(4).index.tolist()
@@ -560,15 +579,22 @@ print(adata14.obs["malignant_class"].value_counts(normalize=True).round(3))""")
 md(r"""🔬 **TASK 10.2:** Map cell2location onto AT14 — reusing the **same** reference signature
 (`inf_aver`) fit once in Section 5, training only a new spatial-mapping model — then derive
 niches the same way as Section 6.""")
-code(r"""shared14 = sorted(set(inf_aver.index) & set(adata14.var_names))
+code(r"""# [KEEP-IN-STUDENT]
+shared14 = sorted(set(inf_aver.index) & set(adata14.var_names))
 vis14 = adata14.copy()[:, shared14].copy()
 inf_aver_aligned14 = inf_aver.loc[shared14]
 print(f"AT14 genes shared with the Level 1 reference signature: {len(shared14)}")
 
+MAP_FILE14 = f"{PRECOMP_DIR}/level2_c2l_AT14_mapped.h5ad"
 MAP_CKPT14 = f"{CKPT_DIR}/vis_AT14_{C2L_MODE}.h5ad"
-if os.path.exists(MAP_CKPT14):
-    vis14 = sc.read_h5ad(MAP_CKPT14)
-    print(f"Loaded cached AT14 mapping result from {MAP_CKPT14} (skipped {MAP_EPOCHS}-epoch training)")
+_map_src14 = next((p for p in (MAP_FILE14, MAP_CKPT14) if os.path.exists(p)), None)
+if not TRAIN_C2L:
+    if _map_src14 is None:
+        raise FileNotFoundError(
+            f"Precomputed AT14 mapping not found (looked in {MAP_FILE14} and {MAP_CKPT14}). Repoint "
+            "paths for this server (see CLAUDE.md), or set TRAIN_C2L = True if a GPU is available.")
+    vis14 = sc.read_h5ad(_map_src14)
+    print(f"Loaded precomputed AT14 mapping from {_map_src14} (skipped {MAP_EPOCHS}-epoch GPU training)")
 else:
     Cell2location.setup_anndata(vis14, layer="counts", batch_key="sample_name" if "sample_name" in vis14.obs else None)
     sp_model14 = Cell2location(vis14, cell_state_df=inf_aver_aligned14, N_cells_per_location=30, detection_alpha=200)
@@ -592,7 +618,8 @@ fig, axes = plt.subplots(1, 2, figsize=(13, 5.5))
 plot_spatial_categories(vis14, "niche", spatial_key="spatial", ax=axes[0])
 axes[0].set_title(f"AT14: {N_NICHES} NMF-derived niches")
 plt.tight_layout(); plt.show()
-print(vis14.obs["niche"].value_counts())""")
+print(vis14.obs["niche"].value_counts())
+""")
 
 md(r"""🔬 **TASK 10.3:** Compare AT10 vs AT14 directly — does the dev-like -> gliosis -> hypoxia
 axis, and a comparable niche structure, show up in both tumours?""")
