@@ -102,11 +102,19 @@ this session. Read this together with <code>CLAUDE.md</code> and <code>full_scal
 <ul>
 <li><strong>Level 1 subsample smoke</strong> (1,500 cells, scVI skipped, Harmony): job 409959 — <strong>PASSED</strong>,
   44/44 code cells, 0 errors, inferCNV primary threshold fired.</li>
-<li><strong>Level 1 full-data CPU</strong> (118k cells, scVI skipped, Harmony), job 410287: heavy cells
-  (integration, inferCNV) passed with 0 errors; confirms students can run the full-data CPU
-  workload on <code>fast</code> (used 16 CPU / 200 GB). Outputs redirected to <code>ifb_smoke/processed</code> so the
-  real <code>data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad</code> is untouched.</li>
+<li><strong>Level 1 full-data CPU</strong> (118k cells, scVI skipped, Harmony), job 410287: <strong>COMPLETED, 0 errors,
+  ~27 min wall, peak RSS ~39 GB</strong> (requested 16 CPU / 200 GB — so a 64 GB allocation is plenty).
+  inferCNV was the single heavy cell (~4 min). Confirms students can run the full-data CPU workload
+  comfortably on <code>fast</code>. Outputs redirected to <code>ifb_smoke/processed</code> so the real
+  <code>data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad</code> is untouched.</li>
 <li><strong>Level 2 CPU</strong> (full data, load c2l checkpoints): not yet run.</li>
+</ul>
+<h2 id="vs-code-notebooks-with-real-compute-added-to-installmd-5">VS Code notebooks with real compute (added to INSTALL.md §5)</h2>
+<ul>
+<li>Connecting VS Code Remote-SSH to the <strong>login node</strong> runs the notebook kernel on the login node
+  (no extra memory) — only for light editing. To get real memory/CPU, connect VS Code directly to a
+  <strong>compute node</strong> via <code>ProxyJump</code> after <code>salloc</code> (INSTALL.md §5 Method A), or use <code>sbatch</code>+<code>nbconvert</code>
+  (Method B), or <code>jupyter lab</code> on a compute node + SSH tunnel (Method C).</li>
 </ul>
 <h2 id="starting_materials-new-the-student-hand-out"><code>starting_materials/</code> (new — the student hand-out)</h2>
 <p><code>/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/starting_materials/</code>

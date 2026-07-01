@@ -71,11 +71,18 @@ this session. Read this together with `CLAUDE.md` and `full_scale_run_plan.md`.
 ## Validation status (this session)
 - **Level 1 subsample smoke** (1,500 cells, scVI skipped, Harmony): job 409959 — **PASSED**,
   44/44 code cells, 0 errors, inferCNV primary threshold fired.
-- **Level 1 full-data CPU** (118k cells, scVI skipped, Harmony), job 410287: heavy cells
-  (integration, inferCNV) passed with 0 errors; confirms students can run the full-data CPU
-  workload on `fast` (used 16 CPU / 200 GB). Outputs redirected to `ifb_smoke/processed` so the
-  real `data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad` is untouched.
+- **Level 1 full-data CPU** (118k cells, scVI skipped, Harmony), job 410287: **COMPLETED, 0 errors,
+  ~27 min wall, peak RSS ~39 GB** (requested 16 CPU / 200 GB — so a 64 GB allocation is plenty).
+  inferCNV was the single heavy cell (~4 min). Confirms students can run the full-data CPU workload
+  comfortably on `fast`. Outputs redirected to `ifb_smoke/processed` so the real
+  `data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad` is untouched.
 - **Level 2 CPU** (full data, load c2l checkpoints): not yet run.
+
+## VS Code notebooks with real compute (added to INSTALL.md §5)
+- Connecting VS Code Remote-SSH to the **login node** runs the notebook kernel on the login node
+  (no extra memory) — only for light editing. To get real memory/CPU, connect VS Code directly to a
+  **compute node** via `ProxyJump` after `salloc` (INSTALL.md §5 Method A), or use `sbatch`+`nbconvert`
+  (Method B), or `jupyter lab` on a compute node + SSH tunnel (Method C).
 
 ## `starting_materials/` (new — the student hand-out)
 `/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/starting_materials/`

@@ -1,0 +1,17 @@
+# ⛔ do_not_use — instructor solutions
+
+**Students: do not open these files.** This folder holds the completed **solution**
+notebooks for the C10 project. Using them defeats the entire point of the project — you learn
+by working the analysis out yourself (and by discussing with instructors and classmates).
+
+The whole design of Level 1 is that you reach the biology through your **own** clustering,
+markers, and reasoning — including discovering the dataset's structure without being told the
+source paper up front. Reading the solutions short-circuits that.
+
+Contents:
+- `01_snrna_analysis_solution.ipynb` — Level 1 completed solution
+- `02_spatial_cell2location_solution.ipynb` — Level 2 completed solution
+
+These are kept in the repository only for **instructors** (teaching, grading, reference). If you
+are a student and opened this by accident, close it and go back to your `*_student.ipynb`
+notebooks. 🙂
