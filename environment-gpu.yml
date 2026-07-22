@@ -1,0 +1,67 @@
+# C10 environment -- CUDA GPU. Linux x86-64 only (that is all the NVIDIA wheels support).
+#
+#   conda env create -f environment-gpu.yml
+#   conda activate c10-gpu
+#   python -c "import torch; print(torch.cuda.is_available())"   # must print True
+#
+# Use this only if you want to run the two GPU steps yourself: scVI integration
+# (Level 1 section 4, TRAIN_SCVI = True) and cell2location training (Level 2 section 5,
+# TRAIN_C2L = True). Everything else is identical to environment-cpu.yml, and the
+# precomputed outputs mean you never need this to complete the project.
+#
+# On a laptop, or on any Mac or Windows machine, use environment-cpu.yml instead.
+# Adjust the torch CUDA index below to match your driver (cu121, cu124, cu130 ...).
+name: c10-gpu
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # CUDA PyTorch. Pulls ~4.6 GB of NVIDIA wheels as torch's own dependencies --
+      # do not list them here, pip resolves them.
+      - --extra-index-url https://download.pytorch.org/whl/cu130
+      - torch==2.12.1
+      - pytorch-lightning==2.6.5
+
+      # Core single-cell stack
+      - anndata==0.12.18
+      - scanpy==1.11.5
+      - numpy==2.4.6
+      - pandas==2.3.3
+      - scipy==1.17.1
+      - scikit-learn==1.9.0
+      - scikit-misc==0.5.2          # scanpy's seurat_v3 highly-variable-gene flavor
+      - numba==0.65.1
+
+      # Clustering / integration
+      - leidenalg==0.12.0
+      - igraph==1.0.0
+      - harmonypy==2.0.0            # Level 1 batch integration (CPU)
+      - scvi-tools==1.4.2           # Level 1 scVI (GPU-trained here)
+
+      # Annotation and copy-number inference
+      - celltypist==1.7.1           # Level 1: Developing_Human_Brain model (downloads on first use)
+      - infercnvpy==0.6.1           # Level 1: malignant vs TME
+
+      # Spatial
+      - squidpy==1.8.2              # Levels 2-3: neighborhoods, spatial plots
+      - numpy-groupies==0.11.3      # squidpy runtime dependency
+      - cell2location==0.1.5        # Level 2 deconvolution (GPU-trained here)
+      - liana==1.7.3                # Level 2 cell-cell communication
+      - decoupler==2.1.6            # liana dependency used directly by the scoring steps
+
+      # IO and plotting
+      - pyarrow==24.0.0             # Level 3: reads transcripts.parquet
+      - zarr==3.1.6
+      - dask==2025.12.0
+      - pooch==1.9.0
+      - matplotlib==3.11.0
+      - seaborn==0.13.2
+      - adjustText==1.4.0
+
+      # Notebook interface
+      - jupyterlab==4.6.0
+      - ipykernel==7.3.0
+      - ipywidgets==8.1.8

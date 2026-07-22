@@ -36,18 +36,32 @@ longer version, with the full analysis and commentary.
 git clone https://github.com/arl94/gbm-space-c10.git
 cd gbm-space-c10
 
-conda env create -f single_cell_environment.yml     # or activate the shared `single_cell` env
-conda activate single_cell
+bash setup_generic.sh                               # creates + verifies the `c10` environment
+conda activate c10
 
-bash scripts/fetch_c10_data.sh                      # ~6 GB transfer, resumable
+bash scripts/fetch_c10_data.sh <bundle-location>    # 5.1 GB transfer, resumable
 python scripts/check_c10_data.py                    # confirms all 16 inputs are in place
 
 jupyter lab notebooks/level1
 ```
 
-Longer setup notes, including VS Code Remote-SSH and running Jupyter on a compute node, are in
-[`INSTALL.md`](INSTALL.md); local Mac/Windows installs in
-[`docs/local_install_mac_windows.md`](docs/local_install_mac_windows.md).
+**Environments.** `environment-cpu.yml` is the one to use — verified to solve on Linux, macOS
+(Intel and Apple Silicon) and Windows. `environment-gpu.yml` is the CUDA variant, Linux x86-64
+only, and you need it only if you want to retrain the two GPU steps yourself.
+`single_cell_environment.yml` is a frozen record of the instructor's cluster environment (the
+exact package set that produced the published outputs); it is Linux-only and will not install
+on a laptop.
+
+**Memory.** Level 1 on the full 118,471-nucleus dataset peaks at about **23 GB RSS** (~18 min on
+16 cores), so plan for 32 GB or subsample — see the laptop guide. Levels 1b, 2 and 3 are light.
+
+**Setup guides.** Laptop: [`docs/local_install_mac_windows.md`](docs/local_install_mac_windows.md).
+Any Slurm cluster: [`INSTALL_generic.md`](INSTALL_generic.md) and
+[`cluster_quickstart_generic.md`](cluster_quickstart_generic.md), with
+[`start_jupyter_generic.sh`](start_jupyter_generic.sh) for a persistent Jupyter server inside a
+job. The unsuffixed `INSTALL.md`, `cluster_quickstart.md`, `setup.sh` and `start_jupyter.sh` are
+the originals from the IFB Core run of the course; they hardcode that cluster and are kept as a
+record.
 
 ### Paths
 
@@ -70,6 +84,8 @@ notebooks/level{1,1b,2,3}/   student + solution notebook per level
 src/gbmspace_utils/          shared helpers the notebooks import (markers, scoring, plotting)
 scripts/                     data prep (01, 02), a cell2location timing probe (03),
                              and the data fetch + check tooling
+environment-{cpu,gpu}.yml    the environments to install from
+*_generic.{md,sh}            cluster-agnostic setup; the unsuffixed files are IFB originals
 reference/                   GRCh38 gene positions for inferCNV
 data/                        fetched separately -- see data/README.md
 precomputed/                 GPU-step outputs, fetched with the data

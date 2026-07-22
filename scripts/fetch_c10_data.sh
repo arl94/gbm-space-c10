@@ -3,18 +3,42 @@
 #
 #   bash scripts/fetch_c10_data.sh [SOURCE]
 #
-# SOURCE defaults to the Curnagl staging directory. Pass a local path or a Google Drive
-# download instead if you already have the bundle:
+# SOURCE is where the C10 data bundle lives. Usually a folder you downloaded and unpacked:
 #
 #   bash scripts/fetch_c10_data.sh ~/Downloads/c10_bundle
+#
+# See data/README.md for where to get the bundle. Instructors on Curnagl can pass the staging
+# path directly:  bash scripts/fetch_c10_data.sh curnagl:/work/.../GBM_Space/c10_bundle/
 #
 # The transfer is resumable -- if it drops, re-run the same command and rsync picks up
 # where it left off. Afterwards the notebooks find everything with no path edits.
 set -eo pipefail
 
-DEFAULT_SOURCE="curnagl:/work/PRTNR/CHUV/DIR/rgottar1/single_cell_all/users/alederer/GBM_Space/c10_bundle/"
-SOURCE="${1:-$DEFAULT_SOURCE}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ -z "${1:-}" ]; then
+    cat >&2 <<USAGE
+Usage: bash scripts/fetch_c10_data.sh <bundle-location>
+
+  <bundle-location> is the C10 data bundle: a local folder you downloaded and
+  unpacked, or any rsync-reachable path.
+
+    bash scripts/fetch_c10_data.sh ~/Downloads/c10_bundle
+    bash scripts/fetch_c10_data.sh user@host:/path/to/c10_bundle
+
+  See data/README.md for where to obtain the bundle (5.1 GB, decompresses to
+  11.7 GB) and what it contains.
+USAGE
+    exit 2
+fi
+SOURCE="$1"
+
+case "$SOURCE" in
+    *:*) ;;                                    # remote -- let rsync/ssh resolve it
+    *) [ -d "$SOURCE" ] || { echo "ERROR: no such directory: $SOURCE" >&2; exit 1; } ;;
+esac
+# rsync needs the trailing slash to copy the contents rather than the folder itself.
+case "$SOURCE" in */) ;; *) SOURCE="$SOURCE/" ;; esac
 
 echo "Source:      $SOURCE"
 echo "Destination: $REPO"

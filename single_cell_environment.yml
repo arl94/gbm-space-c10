@@ -1,3 +1,13 @@
+# FROZEN RECORD -- not the file to install from.
+#
+# This is a `pip freeze`-style export of the instructor's Curnagl environment: the exact
+# package set that produced the published solution notebook outputs. It pins Linux-only conda
+# packages and 19 CUDA wheels, so `conda env create` with it FAILS on macOS and Windows.
+#
+# To build a working environment use:
+#     environment-cpu.yml   -- Linux, macOS (Intel and Apple Silicon), Windows
+#     environment-gpu.yml   -- CUDA, Linux x86-64 only
+#
 name: single_cell
 channels:
   - conda-forge
