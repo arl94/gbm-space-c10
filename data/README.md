@@ -13,7 +13,7 @@ The exact file list lives in [`scripts/c10_data_manifest.txt`](../scripts/c10_da
 and contains only files a notebook actually opens. The fetch script decompresses the
 `.h5ad.gz` archives afterwards, because the notebooks read the plain `.h5ad`.
 
-Sizes below are **on disk after decompression** and total 15.4 GB. The transfer itself is
+Sizes below are **on disk after decompression** and total 11.7 GB. The transfer itself is
 **5.1 GB** — the large `.h5ad` files ship gzipped and compress 3–4× (the cell2location maps go
 812 MB → 178 MB, the annotated reference 2.8 GB → 830 MB).
 
@@ -24,7 +24,7 @@ Sizes below are **on disk after decompression** and total 15.4 GB. The transfer 
 | `snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad` | 3.9 GB | **Level 1** — the starting point. 118,471 nuclei × ~36k genes, donors AT10 + AT14, raw integer counts in `.X`, no annotation. |
 | `../reference/grch38_gene_positions.parquet` | 1 MB | **Level 1** §7 — GRCh38 gene coordinates that inferCNV needs to walk the genome. |
 | `../precomputed/level1_scvi_latent.npz` | 14 MB | **Level 1** §4 — the GPU-trained scVI latent (117,200 × 30) plus matching `obs_names`, so the integration step works without a GPU. |
-| `processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad` | 6.3 GB | **Level 1 output**, then the input to **Levels 1b, 2 and 3**. Carries `cell_type`, `cell_status_derived`, `malignant_state`, `malignant_class`, raw counts in `.layers["counts"]`. |
+| `processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad` | 2.8 GB | **Level 1 output**, then the input to **Levels 1b, 2 and 3**. Carries `cell_type`, `cell_status_derived`, `malignant_state`, `malignant_class`, raw counts in `.layers["counts"]`. |
 | `visium/level2_prepared/AT10-BRA-5-FO-1_2_student.h5ad` | 271 MB | **Level 2** — the primary Visium section, answer-key feature rows stripped out. |
 | `visium/level2_prepared/AT14-BRA-4-FO-2_1_student.h5ad` | 209 MB | **Level 2** §10 and **Level 3** — the second tumor, for the cross-tumor check. |
 | `answer_keys/AT10-BRA-5-FO-1_2_answer_key.h5ad` | 18 MB | **Level 2** §9 — the paper's own niche and cell-state abundances for that section, in `.var["feature_types"]` blocks. |
