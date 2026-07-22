@@ -12,12 +12,16 @@ from pathlib import Path
 
 import anndata as ad
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from gbmspace_utils.data import split_snrna_answer_key  # noqa: E402
 
-DONOR_SPLIT_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/snRNA_seq/donor_split")
-OUT_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/snRNA_seq/level1_prepared")
-ANSWER_KEY_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/answer_keys")
+DATA_DIR = PROJECT_ROOT / "data"
+# The per-donor source files are an instructor-side input and are NOT part of the released
+# data bundle -- only the AT10+AT14 merge this script produces is. See data/README.md.
+DONOR_SPLIT_DIR = DATA_DIR / "snRNA_seq/donor_split"
+OUT_DIR = DATA_DIR / "snRNA_seq/level1_prepared"
+ANSWER_KEY_DIR = DATA_DIR / "answer_keys"
 
 DONORS = ["AT10", "AT14"]
 

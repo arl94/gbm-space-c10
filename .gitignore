@@ -14,7 +14,9 @@ BASIS/
 notebooks/level3/04_xenium_segmentation_basis_solution.ipynb
 
 # Datasets are distributed separately -- see scripts/fetch_c10_data.sh and data/README.md.
-data/processed/
+# The whole data/ tree is fetched, not tracked; only its README travels with the repo.
+data/*
+!data/README.md
 *.h5ad
 *.h5ad.gz
 

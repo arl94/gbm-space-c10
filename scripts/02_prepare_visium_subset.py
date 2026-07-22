@@ -13,12 +13,16 @@ from pathlib import Path
 
 import anndata as ad
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from gbmspace_utils.data import split_visium_answer_key  # noqa: E402
 
-VISIUM_SELECTED_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/visium/anndata_selected")
-OUT_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/visium/level2_prepared")
-ANSWER_KEY_DIR = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/answer_keys")
+DATA_DIR = PROJECT_ROOT / "data"
+# The full 30-section Visium cohort is an instructor-side input and is NOT part of the
+# released data bundle -- only the two prepared sections are. See data/README.md.
+VISIUM_SELECTED_DIR = DATA_DIR / "visium/anndata_selected"
+OUT_DIR = DATA_DIR / "visium/level2_prepared"
+ANSWER_KEY_DIR = DATA_DIR / "answer_keys"
 
 SECTIONS = {
     "primary": "AT10-BRA-5-FO-1_2",

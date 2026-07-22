@@ -19,9 +19,12 @@ from pathlib import Path
 import anndata as ad
 import pandas as pd
 
-SNRNA_STUDENT = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad")
-SNRNA_ANSWER_KEY = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/lederer/answer_keys/snrna_AT10_AT14_answer_key.parquet")
-VISIUM_STUDENT = Path("/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10/data/visium/level2_prepared/AT10-BRA-5-FO-1_2_student.h5ad")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
+
+SNRNA_STUDENT = DATA_DIR / "snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad"
+SNRNA_ANSWER_KEY = DATA_DIR / "answer_keys/snrna_AT10_AT14_answer_key.parquet"
+VISIUM_STUDENT = DATA_DIR / "visium/level2_prepared/AT10-BRA-5-FO-1_2_student.h5ad"
 
 REF_PROBE_EPOCHS = 10
 MAP_PROBE_EPOCHS = 10
