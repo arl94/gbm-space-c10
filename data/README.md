@@ -13,7 +13,9 @@ The exact file list lives in [`scripts/c10_data_manifest.txt`](../scripts/c10_da
 and contains only files a notebook actually opens. The fetch script decompresses the
 `.h5ad.gz` archives afterwards, because the notebooks read the plain `.h5ad`.
 
-Sizes below are **on disk after decompression**; the transfer itself is roughly 6 GB.
+Sizes below are **on disk after decompression** and total 15.4 GB. The transfer itself is
+**5.1 GB** — the large `.h5ad` files ship gzipped and compress 3–4× (the cell2location maps go
+812 MB → 178 MB, the annotated reference 2.8 GB → 830 MB).
 
 ## What each file is, and who reads it
 
