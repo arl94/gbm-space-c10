@@ -1,16 +1,23 @@
+# Build/scratch machinery. A few builder scripts are tracked explicitly with `git add -f`.
 scratch_build/
-data/processed/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
-# vendored third-party package (install via pip: BASIS==0.3.2); not course material
+*.log
+
+# Vendored third-party package (install via pip: BASIS==0.3.2); not course material.
 BASIS/
-# Level 3 BASIS segmentation notebook — excluded for now (needs raw Xenium data)
+
+# Level 3 BASIS segmentation notebook. Not part of the released course material: it needs the
+# complete raw Xenium output folders (~40 GB of morphology TIFFs / zarr) that the data bundle
+# deliberately leaves out. See README.md "What is not included".
 notebooks/level3/04_xenium_segmentation_basis_solution.ipynb
-# large data lives outside the repo on the shared filesystem
+
+# Datasets are distributed separately -- see scripts/fetch_c10_data.sh and data/README.md.
+data/processed/
 *.h5ad
+*.h5ad.gz
 
-
-# GPU-step outputs: too large for git (2 files >100MB). Fetch via rsync -- see precomputed/README.md
+# GPU-step outputs: too large for git (2 files >100 MB). Fetched with the data bundle.
 precomputed/*
 !precomputed/README.md

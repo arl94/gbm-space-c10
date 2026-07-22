@@ -32,6 +32,8 @@ last_task_text = "this step"
 for cell in nb.cells:
     if cell.cell_type == "markdown":
         m = re.search(r"TASK\s+[\d.]+:\*\*\s*(.+?)(?:\n|$)", cell.source)
+        if not m:  # em-dash form: "**TASK 6.3 — spatial intermixing.** ..."
+            m = re.search(r"TASK\s+[\d.]+\s*[—–-]\s*(.+?)\.?\*\*", cell.source)
         if m:
             last_task_text = m.group(1).strip().rstrip(".")
         out_cells.append(nbf.v4.new_markdown_cell(strip_instructor(cell.source)))
