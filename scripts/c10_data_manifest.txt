@@ -1,0 +1,40 @@
+# Every dataset file the C10 notebooks actually open, and nothing else.
+# Used as rsync --files-from by scripts/fetch_c10_data.sh; paths are relative to both
+# the bundle root and the repository root, so the layout transfers unchanged.
+# Blank lines and #-comments are ignored by rsync.
+
+# --- Level 1: snRNA-seq -------------------------------------------------------------
+data/snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad.gz
+data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad.gz
+
+# --- Level 2: Visium ----------------------------------------------------------------
+data/visium/level2_prepared/AT10-BRA-5-FO-1_2_student.h5ad.gz
+data/visium/level2_prepared/AT14-BRA-4-FO-2_1_student.h5ad.gz
+
+# --- Level 3: Xenium organoids ------------------------------------------------------
+data/xenium/AT410-BRA-5-ORG-E30-MOI0_25-D7-S28-B1_GSO1_annotated.h5ad.gz
+data/xenium/AT410-BRA-5-ORG-e25-MOI0_25-D7-S23-B1_GSO1_annotated.h5ad.gz
+data/xenium/AT410-BRA-5-ORG-e25-MOI0_25-D14-S73-D2_GSO1_annotated.h5ad.gz
+# Only the per-molecule table is taken from each raw Xenium Ranger folder (Sections 7-8).
+data/xenium/output-XETG00272__0082677__AT410-BRA-5-ORG-E30-MOI0_25-D7-S28-B1__20260311__143535/transcripts.parquet
+data/xenium/output-XETG00335__0082831__AT410-BRA-5-ORG-e25-MOI0_25-D7-S23-B1__20260311__143630/transcripts.parquet
+data/xenium/output-XETG00155__0097120__AT410-BRA-5-ORG-e25-MOI0_25-D14-S73-D2__20260318__141335/transcripts.parquet
+
+# --- Answer keys (Level 2 Section 9 uses the AT10 one) ------------------------------
+data/answer_keys/AT10-BRA-5-FO-1_2_answer_key.h5ad
+data/answer_keys/AT14-BRA-4-FO-2_1_answer_key.h5ad
+data/answer_keys/snrna_AT10_AT14_answer_key.parquet
+
+# --- GPU-step outputs, so the CPU-only path works -----------------------------------
+precomputed/level1_scvi_latent.npz
+precomputed/level2_c2l_ref_signatures.parquet
+precomputed/level2_c2l_AT10_mapped.h5ad.gz
+precomputed/level2_c2l_AT14_mapped.h5ad.gz
+precomputed/README.md
+
+# --- Reference tables and the paper -------------------------------------------------
+reference/grch38_gene_positions.parquet
+data/paper/GBM-Space-Paper.pdf
+data/paper/GBM-Space-media-1.pdf
+data/paper/GBM-Space-media-2.pdf
+data/paper/GBM-Space-media-3.xlsx

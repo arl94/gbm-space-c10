@@ -1,77 +1,91 @@
-# GBM-Space C10 — project context for Claude (IFB)
+# GBM-Space C10 — project context for Claude
 
-This is the CAJAL "Neuromics 2026" course project **C10** (spatial transcriptomics of glioblastoma).
-It was developed on the UNIL/CHUV **Curnagl** GPU cluster and transferred here (IFB Core) for the course.
-Read this file first. For the IFB-specific environment + this-session changes read
-**`docs/ifb_setup_notes.md`** (Session 4, 2026-07-01). `docs/full_scale_run_plan.md` "Session 3
-update" reflects the final Curnagl state.
+The CAJAL "Neuromics 2026" course project **C10** (spatial transcriptomics of glioblastoma).
+Developed on the UNIL/CHUV **Curnagl** cluster, run on **IFB Core** for the course itself.
 
-## ✅ IFB migration status (done 2026-07-01, Session 4)
-
-The Curnagl→IFB path repoint is **already done** in all code (notebooks, `scripts/`,
-`scratch_build/*`). `grep -rl '/work/PRTNR/CHUV/DIR/rgottar1' .` should return only docs/markdown
-(kept as history). The project runs at `/shared/projects/tp_2630_ubordeaux_neuromics_184418/projects/C10`.
-Env `single_cell` is at `.../C10/../../envs/single_cell` (project group has ACL access); `liana==1.7.3`
-was added to complete it. **No GPU access yet** on IFB for the course account (only `fast`/`long` CPU).
-See `docs/ifb_setup_notes.md` for the conda gotcha (`module load conda` is not enough — must
-`conda init`/source `conda.sh`), the Slurm-on-shared-FS rule, and the student workflow.
+**The course is over (July 2026).** The repository has been turned into a public, self-contained
+release: solutions ship alongside the student notebooks as answer keys, and every path is
+repo-relative. Read `README.md` first — it is now the student-facing entry point.
 
 ## What this project is
 
-Students reproduce, from scratch, the spatial-transcriptomics findings of a glioblastoma paper
-(de Jong, Memi, Gracia, Lazareva et al., bioRxiv 2025.05.13.653495; companion site gbmspace.org),
-across three levels:
-- **Level 1** (`notebooks/level1/`): snRNA-seq analysis — QC, integration (scVI), CellTypist
-  annotation, inferCNV malignant/TME split, malignant cell-state axis. Input: 118,471-cell
-  `data/snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad`. Output (Level 2's input):
-  `data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad`.
-- **Level 2** (`notebooks/level2/`): spatial Visium — QC, naive domains, axis-in-space,
-  **cell2location** deconvolution (reusing the Level 1 reference), NMF niches, squidpy/k-d-tree
-  neighborhood analysis, LIANA cell-cell communication, AT14 cross-tumour comparison, answer-key
-  comparison + write-up. Inputs: the two `data/visium/level2_prepared/*_student.h5ad` sections
-  and `lederer/answer_keys/AT10-BRA-5-FO-1_2_answer_key.h5ad`.
-- **Level 3** (`notebooks/level3/`): Xenium organoid analysis (`03_...`, fully executed, uses the
-  three `data/xenium/*_annotated.h5ad`) and a BASIS segmentation notebook (`04_...`, solution-only,
-  partially executed — needs the raw Xenium `output-*` folders, which are NOT in this transfer).
+Students reproduce, from scratch, the findings of a glioblastoma paper (de Jong, Memi, Gracia,
+Lazareva et al., bioRxiv 2025.05.13.653495; gbmspace.org), across four notebooks:
 
-Each level has a `*_solution.ipynb` (complete, executed) and a `*_student.ipynb` (code blanked).
+- **Level 1** (`notebooks/level1/`): snRNA-seq — QC, integration (Harmony + scVI), CellTypist
+  annotation, inferCNV malignant/TME split, malignant cell-state axis.
+  In: `data/snRNA_seq/level1_prepared/gbm_l1_snrna_AT10_AT14_raw.h5ad` (118,471 nuclei).
+  Out: `data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad` — the input to 1b, 2 and 3.
+- **Level 1b** (`notebooks/level1b/`): read the paper, test five of its snRNA-only claims.
+- **Level 2** (`notebooks/level2/`): Visium — QC, naive domains, axis-in-space, **cell2location**
+  deconvolution, NMF niches, squidpy/k-d-tree neighborhoods, LIANA, AT14 cross-tumor comparison,
+  answer-key comparison + write-up.
+- **Level 3** (`notebooks/level3/`): Xenium organoids — single-cell spatial, neighborhoods,
+  cross-modality comparison, per-molecule nuclear vs cytoplasmic analysis.
 
-## Current status (as of transfer)
+Each level is a `*_student.ipynb` / `*_solution.ipynb` pair in the same folder.
 
-- Level 1 solution + student: **done, leakage-verified.**
-- Level 2 solution: **done, fully finalized** — cell2location run completed clean, AT14 maps
-  verified spatially coherent (median CV ~0.93), write-up filled with real numbers.
-- Level 2 student: **re-derived (66 cells), leakage check passed.**
-- Level 3: `03` organoid solution done; `04` BASIS solution partial (deferred); no student versions yet.
+## Layout and path conventions
+
+Every notebook's **first code cell** is a PROVIDED project-paths cell: it walks up from `Path.cwd()`
+to the repo root (identified by `src/gbmspace_utils`), honors a `C10_ROOT` env override, and defines
+`PROJECT_ROOT`, `NOTEBOOK_DIR`, `DATA_DIR`, `PRECOMP_DIR`, `REFERENCE_DIR`. **No absolute path may
+appear in any notebook or script source.** Verify with:
+
+```bash
+grep -rn '/shared/projects\|/work/PRTNR' notebooks/ scripts/ src/   # must return nothing
+python scripts/check_c10_data.py                                    # all 16 inputs resolve
+```
+
+Docs and markdown still mention both clusters deliberately, as migration history.
+
+## Data
+
+Datasets are not in git. `scripts/c10_data_manifest.txt` is the authoritative list of every file a
+notebook opens (16 inputs, ~15 GB on disk, ~6 GB transferred gzipped); `scripts/fetch_c10_data.sh`
+rsyncs and decompresses them; `scripts/check_c10_data.py` verifies. `data/README.md` explains each
+file and what is deliberately excluded (the ~40 GB of raw Xenium morphology/zarr, the full Visium
+cohort, the per-donor snRNA splits). The Curnagl staging bundle lives at
+`/work/PRTNR/CHUV/DIR/rgottar1/single_cell_all/users/alederer/GBM_Space/c10_bundle/`.
+
+`notebooks/level3/04_xenium_segmentation_basis_solution.ipynb` is gitignored and excluded from the
+release: it needs the full raw Xenium folders and was never finished.
 
 ## Environment
 
-Native conda env `single_cell` (no container). Spec: `docs/single_cell_environment.yml`. Built on
-Python 3.11.15 + pip (torch, scvi-tools, cell2location, squidpy, LIANA, infercnvpy, celltypist,
-BASIS v0.3.2). Recreate, then verify GPU: `python -c "import torch; print(torch.cuda.is_available())"`.
-**pip rule on shared clusters: always `pip install --no-user`** (a plain `pip install` can write to
-`~/.local` and break other envs). Extra runtime deps that had to be added on Curnagl: `zarr`,
-`pooch`, `dask`, `spatialdata`.
+Native conda env `single_cell` (no container). Spec: `single_cell_environment.yml`. Python 3.11 +
+pip (torch, scvi-tools, cell2location, squidpy, LIANA, infercnvpy, celltypist).
+**pip rule on shared clusters: always `pip install --no-user`** — a plain `pip install` can write to
+`~/.local` and break other envs.
 
-## Notebook generation & student derivation (don't hand-edit notebooks)
+The two GPU steps (scVI, cell2location) are optional; their outputs ship in `precomputed/` and the
+notebooks load them by default.
 
-- Solutions are generated by `scratch_build/build_solution_nb*.py` and executed by
-  `scratch_build/direct_execute_nb.py <nb> <timeout_s>` (in-process executor; saves after every
-  cell as a checkpoint).
-- Student notebooks come from `scratch_build/derive_student_nb*.py`: keeps all markdown, blanks all
-  code. **Exception:** instructor-only answer text (e.g. the Section 11 write-up, which embeds real
-  computed numbers) is wrapped in `<!-- INSTRUCTOR-ONLY -->…<!-- /INSTRUCTOR-ONLY -->` sentinels in
-  the solution; the Level 2 derive script strips those regions so answers don't leak. Always run a
-  leakage check after deriving (answer-key column names, paper citation outside Section 9, computed
-  numbers).
+## Notebook generation (don't hand-edit notebooks)
 
-## Key gotchas already solved (see docs/build_notes.md + full_scale_run_plan.md for detail)
+- Solutions are built by `scratch_build/build_solution_nb*.py` and executed by
+  `scratch_build/direct_execute_nb.py <nb> <timeout_s>` — an in-process executor that saves after
+  every cell. It strips `%` line-magics but **not** `!` shell escapes, and it `exec()`s each cell,
+  so bare IPython auto-magics (`pwd`, `ls`) are syntax errors under it.
+- Students notebooks come from `scratch_build/derive_student_nb*.py`: keeps all markdown, blanks all
+  code, and strips `<!-- INSTRUCTOR-ONLY -->…<!-- /INSTRUCTOR-ONLY -->` regions. Those sentinels have
+  now been *removed* from the solutions (the wrapped text is the published answer), so re-deriving a
+  student notebook from a current solution would leak the answers. Derive from the pre-release tag
+  `pre-cleanup-2026-07-22` if you ever need to.
+- To re-execute the Level 1 answer key: `sbatch scratch_build/run_level1_solution.sbatch`
+  (16 CPU / 96 GB / partition `cpu`; ~40 GB peak RSS). Note the script must not use `set -u` — the
+  env's `activate.d/basis_tbb_fix.sh` hook dereferences an unset `LD_LIBRARY_PATH`.
 
-- cell2location reference label must be the real malignant cell-*state* clusters (`malignant_state`
-  9 categories + TME `cell_type`), NOT CellTypist's region-confounded mimic labels — the latter
-  produce flat, uninformative maps. Mapping `batch_size` ≈ 25% of spots, and guard the last
-  mini-batch of size 1 (`if n_obs % bs == 1: bs += 1`) or PyTorch crashes with a 0-d tensor error.
-- inferCNV `window_size=250` (paper-faithful); malignant split calibrated from per-cell signal,
-  not an absolute `cnv_score` threshold.
+## Key gotchas already solved (detail in docs/build_notes.md + full_scale_run_plan.md)
+
+- cell2location's reference label must be the real malignant cell-*state* clusters
+  (`malignant_state`, 9 categories, + TME `cell_type`), NOT CellTypist's region-confounded mimic
+  labels — the latter produce flat, uninformative maps. Mapping `batch_size` ≈ 25% of spots, and
+  guard the last mini-batch of size 1 (`if n_obs % bs == 1: bs += 1`) or PyTorch crashes on a 0-d
+  tensor.
+- inferCNV `window_size=250` (paper-faithful); the malignant split is calibrated from per-cell
+  signal, not an absolute `cnv_score` threshold.
+- CellTypist's `Developing_Human_Brain.pkl` model must already be in `~/.celltypist/data/models/`;
+  compute nodes may have no outbound network.
 
 Session-by-session detail and the rich project memory are in `docs/session_memory/`.
