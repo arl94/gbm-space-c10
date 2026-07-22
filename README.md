@@ -25,6 +25,11 @@ Source paper: de Jong, Memi, Gracia, Lazareva et al., bioRxiv 2025.05.13.653495 
 Level 1 writes `data/processed/gbm_l1_snrna_AT10_AT14_annotated.h5ad`, the input to Levels 1b, 2
 and 3. It also ships pre-built in the data bundle, so any level can be run on its own.
 
+**A note on Level 3.** Unlike the other levels, `03_xenium_organoid_student.ipynb` is not a blanked
+exercise — 23 of its 24 code cells are identical to the solution and it ships already executed. It
+is a condensed guided walkthrough rather than something to fill in; the `_solution` notebook is the
+longer version, with the full analysis and commentary.
+
 ## Getting started
 
 ```bash
