@@ -28,7 +28,7 @@ MALIGNANT_AXIS_MARKERS: dict[str, list[str]] = {
     "AC-gliosis-like": ["ITGAV", "ITGB1", "CDH2", "ABCC3"],
     "Gliosis-like": ["JAK2", "STAT3", "ANXA2", "ANXA5", "YAP1", "IFI16", "IL6R", "IL1R1", "SERPINE1", "VEGFA", "AKAP12"],
     "Hypoxic": ["HILPDA", "BNIP3L", "VEGFA", "JUN", "FOS", "HSPA1B"],
-    # --- Proliferative (cell-cycle / mitosis programme, Table S10 module 7, top genes) ---
+    # --- Proliferative (cell-cycle / mitosis program, Table S10 module 7, top genes) ---
     "Proliferative": ["DLGAP5", "CKAP2L", "CDCA2", "CDC25C", "TTK", "BUB1", "HMMR", "CDCA8", "TOP2A", "MKI67", "BIRC5", "CDK1"],
 }
 

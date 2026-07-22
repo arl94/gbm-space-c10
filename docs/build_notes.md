@@ -144,7 +144,7 @@ gbmspace.org. SpaceTree code: github.com/PMBio/spaceTree.
   (e.g. "Pons OPC", "Pons neural crest cells") simply because CellTypist's `Developing_Human_Brain`
   model has no clean adult-oligodendrocyte category — their actual marker expression
   (`MBP/PLP1/MOG/MOBP/ST18`, mean score ~120-155 vs. ~1-6 baseline) confirms they're real
-  oligodendrocytes. Relabelled those as `"Oligodendrocyte"` instead of dropping them (a real,
+  oligodendrocytes. Relabeled those as `"Oligodendrocyte"` instead of dropping them (a real,
   abundant TME population, not a category worth losing); only the genuinely small/ambiguous
   remainder (~3,300 cells) gets dropped from the reference. **Validated cheaply before the real
   ~5-6h FULL rerun**: reran just the reference+mapping steps at FAST settings (20/300 epochs,
@@ -232,7 +232,7 @@ gbmspace.org. SpaceTree code: github.com/PMBio/spaceTree.
   doublets + 2-step MAD filtering (FDR<0.05 cell-level, FDR<0.1 cluster-level); UMI>75,000
   removed post-doublet-calling.
 - **Integration**: paper used scVI only (50 latent dims, 2 hidden layers, 1024 nodes/layer;
-  batch key = 10x reaction; covariates = tumour ID, site, reaction date, cell-cycle phase).
+  batch key = 10x reaction; covariates = tumor ID, site, reaction date, cell-cycle phase).
   We additionally teach Harmony for comparison (paper didn't use it) — pedagogical choice,
   not a paper-fidelity one.
 - **Malignant/TME split**: inferCNVpy, window=250 genes, reference = marker-clear TME
@@ -244,10 +244,10 @@ gbmspace.org. SpaceTree code: github.com/PMBio/spaceTree.
   scPoli reference mapping (Braun et al. 2023 atlas) and decoupleR/MSigDB enrichment — we
   don't reproduce those two cross-checks, score_genes alone is the teaching-appropriate cut.
 - **cell2location**: reference signature — max_epochs=400, batch_size=10000, lr=0.002,
-  one reference per tumour. Spatial mapping — N_cells_per_location=30, detection_alpha=200,
+  one reference per tumor. Spatial mapping — N_cells_per_location=30, detection_alpha=200,
   max_epochs=6000, batch_size≈25% of spots. See `scripts/03_benchmark_cell2location.py` for
   the CPU-timing-informed FAST preset used in the Level 2 notebook.
-- **Niche analysis**: sklearn NMF, 16 factors/tumour in the paper (cross-tumour cohort);
+- **Niche analysis**: sklearn NMF, 16 factors/tumor in the paper (cross-tumor cohort);
   we scale down given far fewer spots in 1-2 sections — let students try a few factor counts.
 - **Spatial proximity network**: pairwise minimum spot distance via k-d tree, 25th
   percentile summary (implemented as `gbmspace_utils.analysis.spatial_proximity_network`).

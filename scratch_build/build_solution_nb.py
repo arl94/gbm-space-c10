@@ -27,12 +27,12 @@ md(r"""# Level 1 — Single-Nucleus Census of an Adult Glioblastoma
 - Perform quality control on nuclei and understand what has *already* been done to the data
 - Normalize, select features, and integrate across donors (Harmony **and** scVI, compared)
 - Cluster and annotate broad cell types using marker genes **and** an automated classifier
-- Separate malignant cells from the non-malignant tumour microenvironment (TME) using copy-number inference
-- Characterise a continuous **malignant cell-state axis** and how it varies between donors
+- Separate malignant cells from the non-malignant tumor microenvironment (TME) using copy-number inference
+- Characterize a continuous **malignant cell-state axis** and how it varies between donors
 
 **Dataset:** snRNA-seq (10x Multiome, RNA modality) from **two adult patients** with high-grade glioma — donors `AT10` and `AT14`, sampled from several tissue sites each. `~118,000` nuclei × `~36,600` genes. The expression matrix holds **raw integer UMI counts**.
 
-> **We are not telling you where this data comes from yet.** There is no paper, title, or figure to look up. Your job is to let the data speak: reconstruct the cell types and tumour states yourself, the way the original analysts had to. The "reveal" happens in Level 2.
+> **We are not telling you where this data comes from yet.** There is no paper, title, or figure to look up. Your job is to let the data speak: reconstruct the cell types and tumor states yourself, the way the original analysts had to. The "reveal" happens in Level 2.
 
 ---""")
 
@@ -114,7 +114,7 @@ print("\nQC summary (whole dataset):")
 print(adata.obs[["total_counts", "n_genes_by_counts", "pct_counts_mt", "doublet_scores"]]
       .describe().round(2))""")
 
-md(r"""🔬 **TASK 2.2:** Visualise the QC distributions, split by donor, and look at the joint counts-vs-genes structure.""")
+md(r"""🔬 **TASK 2.2:** Visualize the QC distributions, split by donor, and look at the joint counts-vs-genes structure.""")
 
 code(r"""fig, axes = plt.subplots(1, 4, figsize=(18, 4))
 sc.pl.violin(adata, "total_counts", groupby="donor_id", ax=axes[0], show=False)
@@ -486,7 +486,7 @@ print(f"Genes with genomic position: {n_pos:,} / {adata.n_vars:,}")""")
 
 md(r"""🔬 **TASK 7.2:** Pick the unambiguous TME clusters as the CNA reference and run `infercnvpy`.""")
 
-code(r"""# Candidate-malignant CellTypist labels mimic developmental/glial-progenitor programmes
+code(r"""# Candidate-malignant CellTypist labels mimic developmental/glial-progenitor programs
 # (see the reconciliation note above) -- match by keyword since CellTypist's exact label
 # vocabulary (e.g. region-specific "Hypothalamus glioblast", "Hippocampus OPC") varies by
 # model/dataset -- everything else is the diploid TME reference.
@@ -738,7 +738,7 @@ You have, from raw counts and no labels:
 2. ✅ Normalized, selected HVGs, and **integrated two donors** with Harmony and scVI (compared)
 3. ✅ Clustered and annotated **broad cell types** (markers + CellTypist, reconciled)
 4. ✅ Split **malignant vs TME** by copy-number inference
-5. ✅ Characterised a continuous **malignant cell-state axis** and its per-donor composition
+5. ✅ Characterized a continuous **malignant cell-state axis** and its per-donor composition
 6. ✅ Run a DE comparison and built a publication figure
 7. ✅ Saved a clean annotated reference for Level 2
 

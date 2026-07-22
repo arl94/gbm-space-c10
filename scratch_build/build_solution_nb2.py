@@ -203,7 +203,7 @@ didn't clear the malignant threshold, so they're correctly TME — but CellTypis
 first. A quick oligodendrocyte marker score (`MBP, PLP1, MOG, MOBP, ST18`) reveals most of them
 *are* real oligodendrocytes (mean score ~120-155 vs. ~1-6 in true TME/malignant cells) — CellTypist's
 `Developing_Human_Brain` model has no clean adult-oligodendrocyte category, so it matched them to
-the closest thing it had (developing OPC/neural-crest programmes). Relabel those properly instead
+the closest thing it had (developing OPC/neural-crest programs). Relabel those properly instead
 of throwing away a real, abundant TME population; only drop the few small clusters that show
 *neither* a malignant-state signature *nor* oligodendrocyte markers (truly ambiguous, ~2% of cells).
 
@@ -223,8 +223,8 @@ oligo_score = marker_sum / np.maximum(libsize, 1) * 1e4
 
 is_real_oligo = is_mimic_but_tme & (oligo_score > 20)  # >>10x the ~1-6 baseline in true TME/malignant cells
 is_truly_ambiguous = is_mimic_but_tme & ~is_real_oligo
-print(f"Of {int(is_mimic_but_tme.sum())} mimic-labelled-but-TME nuclei: "
-      f"{int(is_real_oligo.sum())} are real oligodendrocytes (relabelled), "
+print(f"Of {int(is_mimic_but_tme.sum())} mimic-labeled-but-TME nuclei: "
+      f"{int(is_real_oligo.sum())} are real oligodendrocytes (relabeled), "
       f"{int(is_truly_ambiguous.sum())} stay ambiguous (dropped)")
 
 adata_ref = adata_ref[~is_truly_ambiguous].copy()
@@ -312,7 +312,7 @@ if not TRAIN_C2L:
 else:
     Cell2location.setup_anndata(vis, layer="counts", batch_key="sample_name" if "sample_name" in vis.obs else None)
     sp_model = Cell2location(vis, cell_state_df=inf_aver_aligned, N_cells_per_location=30, detection_alpha=200)
-    # Paper used batch_size ~= 25% of spots per tumour (Methods), not full-batch.
+    # Paper used batch_size ~= 25% of spots per tumor (Methods), not full-batch.
     sp_model.train(max_epochs=MAP_EPOCHS, batch_size=max(int(0.25 * vis.n_obs), 1))
     vis = sp_model.export_posterior(vis, sample_kwargs={"num_samples": 100, "batch_size": vis.n_obs})
     vis.write_h5ad(MAP_CKPT)
@@ -452,7 +452,7 @@ print(f"\nLIANA interactions scored: {len(liana_res)}")
 print(liana_res["source"].astype(str).str.cat(liana_res["target"].astype(str), sep=" -> ").value_counts())""")
 
 md(r"""🔬 **TASK 8.3:** Look at the top cross-group interactions in each direction (dev-like spots
-signalling to gliosis/hypoxia spots, and vice versa), ranked by LIANA's aggregate
+signaling to gliosis/hypoxia spots, and vice versa), ranked by LIANA's aggregate
 `magnitude_rank` (lower = stronger consensus across methods).""")
 code(r"""for src, tgt in [("dev-like-dominant", "gliosis-hypoxia-dominant"), ("gliosis-hypoxia-dominant", "dev-like-dominant")]:
     cross = liana_res[(liana_res["source"] == src) & (liana_res["target"] == tgt)].sort_values("magnitude_rank")
@@ -467,8 +467,8 @@ li.pl.dotplot(adata=vis_ccc, colour="magnitude_rank", size="specificity_rank",
 plt.show()""")
 
 md(r"""❓ **QUESTION:** Which ligand-receptor pairs are specific to one direction (e.g. dev-like
-spots signalling to gliosis/hypoxia spots) rather than the reverse? Do any involve genes you
-already recognise from the hypoxia/gliosis marker sets in `MALIGNANT_AXIS_MARKERS` (e.g.
+spots signaling to gliosis/hypoxia spots) rather than the reverse? Do any involve genes you
+already recognize from the hypoxia/gliosis marker sets in `MALIGNANT_AXIS_MARKERS` (e.g.
 `VEGFA`)? What would that suggest about how these two ends of the trajectory interact spatially,
 rather than just co-occurring?
 
@@ -480,7 +480,7 @@ md(r"""## 9. Revealing the paper
 📄 **de Jong, Memi, Gracia, Lazareva et al. "A spatiotemporal cancer cell trajectory
 underlies glioblastoma heterogeneity." bioRxiv 2025.05.13.653495.** Companion website:
 [gbmspace.org](https://www.gbmspace.org/). The data you have been working with (AT10 and
-AT14, snRNA-seq + Visium) are two of the 12 IDH-wildtype glioblastoma tumours profiled in
+AT14, snRNA-seq + Visium) are two of the 12 IDH-wildtype glioblastoma tumors profiled in
 this study (1,025,329 nuclei total across the cohort).
 
 **Key findings, for comparison against your own results:**
@@ -491,18 +491,18 @@ this study (1,025,329 nuclei total across the cohort).
   (`SNAI1/2`, `TWIST1/2`, `ZEB1/2`) are *not* specifically enriched there, arguing against an
   EMT interpretation.
 - This trajectory maps onto **spatial zonation**: AC-progenitor-like cells dominate near the
-  tumour core / infiltrating edge; gliosis and hypoxic states concentrate deep in the tumour,
+  tumor core / infiltrating edge; gliosis and hypoxic states concentrate deep in the tumor,
   around and within necrotic regions — exactly the `AQP4` → `ABCC3` → `AKAP12` → `HILPDA`
   gradient you looked for in Section 4.
 - Spatial **niches** were derived the same way you just did it: NMF on cell2location
-  cell-state abundances (16 factors per tumour in the paper, clustered into ~14-16 recurrent
+  cell-state abundances (16 factors per tumor in the paper, clustered into ~14-16 recurrent
   niches across the cohort), cross-validated against pathologist-annotated IvyGAP regions
-  (leading edge, infiltrating tumour, cellular tumour, necrosis, pseudopalisading cells,
+  (leading edge, infiltrating tumor, cellular tumor, necrosis, pseudopalisading cells,
   perinecrotic zone, microvascular proliferation).
 - A major caveat the authors flag explicitly: **single-biopsy sampling can be misleading** —
-  one of their tumours (AT10, the same donor in your data!) showed a different dominant
+  one of their tumors (AT10, the same donor in your data!) showed a different dominant
   malignant state in each of its 4 sampled sites, challenging the idea of one fixed
-  "subtype" per tumour.
+  "subtype" per tumor.
 
 🔬 **TASK 9.1:** Now that you know the source, compare your own niche map and axis scores
 against the paper's actual cell2location/niche outputs for this exact section (these were
@@ -543,12 +543,12 @@ md(r"""❓ **QUESTION:** Where does your independent analysis agree with the pub
 
 ---
 
-## 10. Secondary check: does the same pattern hold in tumour 2? (AT14)
+## 10. Secondary check: does the same pattern hold in tumor 2? (AT14)
 
 Everything above used AT10 only. The paper's own caveat from Section 9 — that a single biopsy
 can be misleading, and that AT10 itself showed different dominant states across its 4 sampled
-sites — is exactly why a second, independent tumour is worth checking. `AT14`'s Visium section
-has **no IvyGAP histopathology overlay**, so this is a cross-tumour sanity check against AT10,
+sites — is exactly why a second, independent tumor is worth checking. `AT14`'s Visium section
+has **no IvyGAP histopathology overlay**, so this is a cross-tumor sanity check against AT10,
 not a check against ground truth. It's also intentionally **condensed**: the reference
 signature from Level 1 is reused as-is (only a new spatial-mapping model is trained), and we
 don't repeat the squidpy-vs-k-d-tree neighborhood comparison or LIANA here — those stay AT10-only.
@@ -622,7 +622,7 @@ print(vis14.obs["niche"].value_counts())
 """)
 
 md(r"""🔬 **TASK 10.3:** Compare AT10 vs AT14 directly — does the dev-like -> gliosis -> hypoxia
-axis, and a comparable niche structure, show up in both tumours?""")
+axis, and a comparable niche structure, show up in both tumors?""")
 code(r"""adata.obs["malignant_class"] = dominant_axis.map(MAJOR_CLASS_OF)  # dominant_axis from Section 8
 
 cross_tumor = pd.DataFrame({
@@ -638,13 +638,13 @@ ax.set(ylabel="fraction of spots", title="Malignant-class composition: AT10 vs A
 plt.tight_layout(); plt.show()
 
 print(f"\nAT10 niches: {N_NICHES} (from {vis.n_obs} spots) | AT14 niches: {N_NICHES} (from {vis14.n_obs} spots)")
-print("Note: AT14 has no IvyGAP/cell2location answer key, so this is a cross-tumour check, "
+print("Note: AT14 has no IvyGAP/cell2location answer key, so this is a cross-tumor check, "
       "not a check against ground truth (TASK 9.1's answer-key comparison stays AT10-only).")""")
 
 md(r"""❓ **QUESTION:** Is the malignant-class composition similar between AT10 and AT14, or does
-one tumour skew much more dev-like / gliosis-hypoxia than the other? Given the paper's own
+one tumor skew much more dev-like / gliosis-hypoxia than the other? Given the paper's own
 caveat about single-biopsy sampling (Section 9), how confident should you be that either
-section alone represents "the" malignant-state distribution of its tumour?
+section alone represents "the" malignant-state distribution of its tumor?
 
 ---
 
@@ -695,7 +695,7 @@ You have:
 6. ✅ Compared two methods for spatial neighborhood/proximity analysis
 7. ✅ Run LIANA cell-cell communication scoring between dev-like and gliosis/hypoxia spots
 8. ✅ Compared your independent results against the published findings
-9. ✅ Checked whether the same axis/niche pattern holds in a second tumour (AT14)
+9. ✅ Checked whether the same axis/niche pattern holds in a second tumor (AT14)
 
 **Further reading, not built here:** the paper also describes **spaceTree** (joint cell-type
 + genetic-clone mapping) and **cell2fate** (RNA-velocity-based temporal ordering of malignant

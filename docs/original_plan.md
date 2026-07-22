@@ -74,7 +74,7 @@ Flag clearly as **optional/stretch** (protect the 2-day budget): the 9-subclass 
 9. **Write-up**: reproduce one specific paper panel.
 10. (Optional discussion only, not an exercise) — 1-paragraph mention of **spaceTree** as further reading, explicitly not attempted (needs a clone-calling pipeline from paired snATAC-seq we don't have students build; confirmed reasonable to skip outright per the paper agent's independent assessment). **cell2fate** noted as future work pending spliced/unspliced counts.
 
-If AT14's Visium section is used, scope it as an optional "does the same pattern hold in tumour 2?" comparison, not core (it has no IvyGAP histopathology overlay, unlike AT10).
+If AT14's Visium section is used, scope it as an optional "does the same pattern hold in tumor 2?" comparison, not core (it has no IvyGAP histopathology overlay, unlike AT10).
 
 ## Style conventions (from template study, applied consistently this time)
 
