@@ -54,6 +54,7 @@ for level, rel in REQUIRED:
 
 print(f"\n{len(REQUIRED) - len(missing)}/{len(REQUIRED)} present, {human(total)} on disk")
 if missing:
-    print("\nMissing files -- re-run: bash scripts/fetch_c10_data.sh")
+    print("\nMissing files -- fetch them with:  bash scripts/fetch_c10_data.sh <bundle-location>")
+    print("See data/README.md for where to get the bundle.")
     raise SystemExit(1)
 print("All datasets present. The notebooks will find everything.")
